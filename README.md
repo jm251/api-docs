@@ -20,8 +20,10 @@ graph TD
     D --> E
 
 ````
+
 API Endpoint Details
 Once you have completed the initial steps and generated a token, you can use the API endpoint to create orders.
+
 
 Endpoint
 Code
@@ -31,8 +33,10 @@ Content-Type: application/json
 Authorization: Bearer <your_generated_token>
 Replace <your_generated_token> with the token you generated from the settings page.
 
+
 Request Body
 Below is an example request body:
+
 
 JSON
 {
@@ -82,18 +86,23 @@ JSON
     }
   ]
 }
+
 Usage Steps Summary
 Register or Login
 Visit https://seller.shypbuddy.net to register or log in to your account.
 
+
 Complete your KYC
 Complete your KYC at https://seller.shypbuddy.net/kyc.
+
 
 Add your Default Warehouse
 Set up your default warehouse at https://seller.shypbuddy.net/address/list_address.
 
+
 Configure 3PL Preferences
 Go to the 3PL Preference Page at https://seller.shypbuddy.net/settings.
+
 
 Generate an API Token
 Generate your API token from https://seller.shypbuddy.net/settings and use it in your API requests.
