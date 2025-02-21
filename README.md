@@ -19,7 +19,7 @@ graph TD
     C --> D
     D --> E
 
-
+````
 API Endpoint Details
 Once you have completed the initial steps and generated a token, you can use the API endpoint to create orders.
 
