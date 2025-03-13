@@ -109,7 +109,7 @@ Below is an example request body:
    - Generate your API token from [https://seller.shypbuddy.net/settings](https://seller.shypbuddy.net/settings) and use it in your API requests.
 
 Follow the guide and the examples to integrate with the API successfully.
-
+=============================================================================================================================================================================================================
 This repository provides an example of how to integrate with the ShypBuddy API for generating PDFs. Below you will find the necessary details to make API requests, including authentication and request payload.
 
 ## API Endpoint
@@ -156,6 +156,58 @@ Make sure to replace `YOUR_ACCESS_TOKEN` with your actual access token. You can 
 The response will contain the generated PDF file. Ensure to handle the response appropriately in your application to display or store the PDF.
 
 
+
+## Contact
+
+For any questions or support, please contact the ShypBuddy support team at [support@shypbuddy.net](mailto:support@shypbuddy.net).
+
+====================================================================================================================================================================================================================
+# ShypBuddy API Integration
+
+This repository provides an example of how to integrate with the ShypBuddy API for generating PDF thermal labels. Below you will find the necessary details to make API requests, including authentication and request payload.
+
+## API Endpoint
+
+### Generate PDF Thermal Label
+```
+POST https://seller.shypbuddy.net/api/generatePdf2/generatePdfThermalLabel
+```
+
+## Headers
+
+- `Content-Type`: `application/json`
+- `Authorization`: `Bearer YOUR_ACCESS_TOKEN`
+
+## Request Payload
+
+The request payload should be a JSON object containing a list of AWB numbers. Here is an example:
+
+```json
+{
+  "awbs": ["10610372058", "10610372059"]
+}
+```
+
+## Example Request
+
+Below is an example of how to make the API request using `curl`:
+
+```bash
+curl -X POST https://seller.shypbuddy.net/api/generatePdf2/generatePdfThermalLabel \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+-d '{
+  "awbs": ["10610372058", "10610372059"]
+}'
+```
+
+## Authentication
+
+Make sure to replace `YOUR_ACCESS_TOKEN` with your actual access token. You can obtain an access token by logging in to your ShypBuddy account and navigating to the API settings.
+
+## Response
+
+The response will contain the generated PDF thermal label file. Ensure to handle the response appropriately in your application to display or store the PDF.
 
 ## Contact
 
