@@ -212,4 +212,101 @@ The response will contain the generated PDF thermal label file. Ensure to handle
 ## Contact
 
 For any questions or support, please contact the ShypBuddy support team at [support@shypbuddy.net](mailto:support@shypbuddy.net).
+================================================================================================================================
+# Cancel Order API Documentation
+
+## Overview
+
+This documentation provides information about the API endpoint for canceling orders through the `cancelOrderApi` endpoint. This API allows users to cancel orders by specifying one or multiple AWBs (Air Waybills).
+
+## Base URL
+
+```
+https://seller.shypbuddy.net/api/orderApi
+```
+
+## Endpoints
+
+### Cancel Order API
+
+#### Endpoint
+
+```
+POST /cancelOrderApi
+```
+
+#### Description
+
+This endpoint cancels the specified orders based on the provided AWBs.
+
+#### Request Headers
+
+- `Content-Type: application/json`
+- `Authorization: Bearer <token>`
+
+#### Request Body
+
+The request body must be a JSON object containing an array of AWBs to be canceled.
+
+##### Example
+
+```json
+{
+  "awbs": ["18517412101444"]
+}
+```
+
+#### Response
+
+The response will be a JSON object indicating the success or failure of the cancellation request.
+
+##### Example
+
+```json
+{
+  "status": "success",
+  "message": "Orders canceled successfully."
+}
+```
+
+## Authentication
+
+The API requires a Bearer token for authentication. Ensure that you include the `Authorization` header in your requests.
+
+## Example Usage
+
+### cURL
+
+```sh
+curl -X POST https://seller.shypbuddy.net/api/orderApi/cancelOrderApi \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+-d '{
+  "awbs": ["18517412101444"]
+}'
+```
+
+### JavaScript (Fetch API)
+
+```javascript
+fetch('https://seller.shypbuddy.net/api/orderApi/cancelOrderApi', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ACCESS_TOKEN'
+  },
+  body: JSON.stringify({
+    awbs: ["1851741210144"]
+  })
+})
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));
+```
+
+## Notes
+
+- Ensure that the Bearer token is valid and has the necessary permissions to cancel orders.
+- The `awbs` array can contain multiple AWBs for batch cancellation.
+
 ```` ▋
