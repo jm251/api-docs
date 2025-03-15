@@ -1,89 +1,377 @@
 openapi: 3.0.0
 info:
-  title: ShypBuddy Cancel Order API
-  description: API endpoint for canceling orders by providing AWB numbers
+  title: ShypBuddy API
+  description: |
+    API for integrating with the ShypBuddy platform for order management, 
+    label generation, and shipping operations.
   version: 1.0.0
   contact:
-    name: ShypBuddy Support
     email: support@shypbuddy.net
-    url: https://seller.shypbuddy.net
+
 servers:
   - url: https://seller.shypbuddy.net/api
-    description: ShypBuddy API Server
+    description: Production server
+
+security:
+  - bearerAuth: []
+
 paths:
-  /orderApi/cancelOrderApi:
+  /orderApi/createOrder:
     post:
-      summary: Cancel Orders
-      description: Cancels one or multiple orders specified by their Air Waybill (AWB) numbers
-      operationId: cancelOrders
       tags:
         - Orders
-      security:
-        - bearerAuth: []
+      summary: Create a new order
+      description: Create a new shipping order on the ShypBuddy platform
+      operationId: createOrder
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CancelOrderRequest'
-            examples:
-              singleAwb:
-                summary: Cancel a single order
-                value:
-                  awbs: ["18517412101444"]
-              multipleAwbs:
-                summary: Cancel multiple orders
-                value:
-                  awbs: ["18517412101444", "18517412101445", "18517412101446"]
+              $ref: '#/components/schemas/OrderRequest'
+            example:
+              orderData:
+                deliveryType: "FORWARD"
+                isDangerousGoods: "n"
+                paymentMode: "cod"
+                length: 10
+                breadth: 10
+                height: 15
+                warehouseName: "Warehouse"
+                packageCount: 2
+                shippingMode: "surface"
+                deadWeight: 0.5
+              customerAddressList:
+                fullName: "Rahul Kumar"
+                contactNumber: "9876543210"
+                email: "rahul.kumar@email.com"
+                alternateNumber: "8765432109"
+                buyerCompanyName: "Tech Solutions Pvt Ltd"
+                buyerGstin: "27AAPFU0939F1ZV"
+                address: "B-404, Silver Heights, Sector 7"
+                landmark: "Near City Mall"
+                pincode: 400028
+                createdAt: "2024-03-21T10:30:00Z"
+                city: "Mumbai"
+                state: "Maharashtra"
+              packageList:
+                - name: "Gaming Laptop"
+                  qty: 1
+                  price: 82
+                  category: "Electronics"
+                  sku: "LAP-GM-001"
+                  hsnCode: "847130"
+                - name: "Wireless Mouse"
+                  qty: 2
+                  price: 12
+                  category: "Electronics"
+                  sku: "ACC-MS-002"
+                  hsnCode: "847160"
       responses:
         '200':
-          description: Orders canceled successfully
+          description: Order created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-              example:
-                status: "success"
-                message: "Orders canceled successfully."
+                $ref: '#/components/schemas/OrderResponse'
         '400':
-          description: Bad request
+          description: Invalid input
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                status: "error"
-                message: "Invalid AWB format or empty AWB list"
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+
+  /orderApi/cancelOrderApi:
+    post:
+      tags:
+        - Orders
+      summary: Cancel orders
+      description: Cancel one or multiple orders based on AWB numbers
+      operationId: cancelOrders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequest'
+            example:
+              awbs: ["18517412101444"]
+      responses:
+        '200':
+          description: Orders canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CancelOrderResponse'
               example:
-                status: "error"
-                message: "Authentication failed. Invalid or expired token."
-        '404':
-          description: AWB not found
+                status: "success"
+                message: "Orders canceled successfully."
+        '400':
+          description: Invalid input
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                status: "error"
-                message: "One or more AWBs not found in the system"
-        '500':
-          description: Server error
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-              example:
-                status: "error"
-                message: "An internal server error occurred"
+
+  /generatePdf2/generatePdf:
+    post:
+      tags:
+        - Documents
+      summary: Generate PDF labels
+      description: Generate shipping labels in PDF format
+      operationId: generatePdf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePdfRequest'
+            example:
+              awbs: ["10610372058", "10610372059"]
+      responses:
+        '200':
+          description: PDF generated successfully
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /generatePdf2/generatePdfThermalLabel:
+    post:
+      tags:
+        - Documents
+      summary: Generate thermal label PDF
+      description: Generate thermal shipping labels in PDF format
+      operationId: generatePdfThermalLabel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePdfRequest'
+            example:
+              awbs: ["10610372058", "10610372059"]
+      responses:
+        '200':
+          description: Thermal PDF generated successfully
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter your API token here
+
   schemas:
+    OrderData:
+      type: object
+      required:
+        - deliveryType
+        - isDangerousGoods
+        - paymentMode
+        - length
+        - breadth
+        - height
+        - warehouseName
+        - packageCount
+        - shippingMode
+        - deadWeight
+      properties:
+        deliveryType:
+          type: string
+          description: Type of delivery service
+          enum: [FORWARD, REVERSE]
+        isDangerousGoods:
+          type: string
+          description: Whether the shipment contains dangerous goods
+          enum: [y, n]
+        paymentMode:
+          type: string
+          description: Payment mode for the order
+          enum: [cod, prepaid]
+        length:
+          type: number
+          description: Length of the package in cm
+        breadth:
+          type: number
+          description: Breadth of the package in cm
+        height:
+          type: number
+          description: Height of the package in cm
+        warehouseName:
+          type: string
+          description: Name of the warehouse
+        packageCount:
+          type: integer
+          description: Number of packages in the order
+        shippingMode:
+          type: string
+          description: Mode of shipping
+          enum: [surface, air]
+        deadWeight:
+          type: number
+          description: Weight of the package in kg
+        deliveryPartner:
+          type: string
+          description: Preferred delivery partner (optional)
+
+    CustomerAddress:
+      type: object
+      required:
+        - fullName
+        - contactNumber
+        - address
+        - pincode
+        - city
+        - state
+      properties:
+        fullName:
+          type: string
+          description: Full name of the customer
+        contactNumber:
+          type: string
+          description: Contact number of the customer
+        email:
+          type: string
+          format: email
+          description: Email address of the customer
+        alternateNumber:
+          type: string
+          description: Alternate contact number
+        buyerCompanyName:
+          type: string
+          description: Company name of the buyer
+        buyerGstin:
+          type: string
+          description: GSTIN of the buyer
+        address:
+          type: string
+          description: Delivery address
+        landmark:
+          type: string
+          description: Landmark near the delivery address
+        pincode:
+          type: integer
+          description: PIN code of the delivery location
+        createdAt:
+          type: string
+          format: date-time
+          description: Time when the address was created
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State name
+
+    PackageItem:
+      type: object
+      required:
+        - name
+        - qty
+        - price
+      properties:
+        name:
+          type: string
+          description: Name of the product
+        qty:
+          type: integer
+          description: Quantity of the product
+        price:
+          type: number
+          description: Price of the product
+        category:
+          type: string
+          description: Category of the product
+        sku:
+          type: string
+          description: SKU of the product
+        hsnCode:
+          type: string
+          description: HSN code of the product
+
+    OrderRequest:
+      type: object
+      required:
+        - orderData
+        - customerAddressList
+        - packageList
+      properties:
+        orderData:
+          $ref: '#/components/schemas/OrderData'
+        customerAddressList:
+          $ref: '#/components/schemas/CustomerAddress'
+        packageList:
+          type: array
+          items:
+            $ref: '#/components/schemas/PackageItem'
+
+    OrderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the order creation was successful
+        message:
+          type: string
+          description: Message about the order creation result
+        orderDetails:
+          type: object
+          properties:
+            orderId:
+              type: string
+              description: ID of the created order
+            awb:
+              type: string
+              description: Air Waybill number for the created order
+            trackingUrl:
+              type: string
+              format: uri
+              description: URL to track the shipment
+
     CancelOrderRequest:
       type: object
       required:
@@ -91,44 +379,40 @@ components:
       properties:
         awbs:
           type: array
-          description: List of Air Waybill (AWB) numbers to be canceled
+          description: List of AWB numbers to cancel
           items:
             type: string
-          minItems: 1
-          example: ["18517412101444"]
-    
-    SuccessResponse:
+
+    CancelOrderResponse:
       type: object
       properties:
         status:
           type: string
-          example: "success"
+          description: Status of the cancellation request
         message:
           type: string
-          example: "Orders canceled successfully."
-    
+          description: Message about the cancellation result
+
+    GeneratePdfRequest:
+      type: object
+      required:
+        - awbs
+      properties:
+        awbs:
+          type: array
+          description: List of AWB numbers for PDF generation
+          items:
+            type: string
+
     ErrorResponse:
       type: object
       properties:
+        error:
+          type: string
+          description: Error message
         status:
           type: string
-          example: "error"
-        message:
-          type: string
-          example: "Error message details"
-        errors:
-          type: array
-          items:
-            type: string
-          example: ["AWB 18517412101444 not found"]
-  
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token generated from the ShypBuddy platform
-
-tags:
-  - name: Orders
-    description: Operations related to order management
+          description: Status of the request
+        code:
+          type: integer
+          description: Error code
