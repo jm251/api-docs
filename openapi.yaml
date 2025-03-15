@@ -1,0 +1,134 @@
+openapi: 3.0.0
+info:
+  title: ShypBuddy Cancel Order API
+  description: API endpoint for canceling orders by providing AWB numbers
+  version: 1.0.0
+  contact:
+    name: ShypBuddy Support
+    email: support@shypbuddy.net
+    url: https://seller.shypbuddy.net
+servers:
+  - url: https://seller.shypbuddy.net/api
+    description: ShypBuddy API Server
+paths:
+  /orderApi/cancelOrderApi:
+    post:
+      summary: Cancel Orders
+      description: Cancels one or multiple orders specified by their Air Waybill (AWB) numbers
+      operationId: cancelOrders
+      tags:
+        - Orders
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelOrderRequest'
+            examples:
+              singleAwb:
+                summary: Cancel a single order
+                value:
+                  awbs: ["18517412101444"]
+              multipleAwbs:
+                summary: Cancel multiple orders
+                value:
+                  awbs: ["18517412101444", "18517412101445", "18517412101446"]
+      responses:
+        '200':
+          description: Orders canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                status: "success"
+                message: "Orders canceled successfully."
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "Invalid AWB format or empty AWB list"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "Authentication failed. Invalid or expired token."
+        '404':
+          description: AWB not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "One or more AWBs not found in the system"
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                status: "error"
+                message: "An internal server error occurred"
+
+components:
+  schemas:
+    CancelOrderRequest:
+      type: object
+      required:
+        - awbs
+      properties:
+        awbs:
+          type: array
+          description: List of Air Waybill (AWB) numbers to be canceled
+          items:
+            type: string
+          minItems: 1
+          example: ["18517412101444"]
+    
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        message:
+          type: string
+          example: "Orders canceled successfully."
+    
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "error"
+        message:
+          type: string
+          example: "Error message details"
+        errors:
+          type: array
+          items:
+            type: string
+          example: ["AWB 18517412101444 not found"]
+  
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token generated from the ShypBuddy platform
+
+tags:
+  - name: Orders
+    description: Operations related to order management
