@@ -1,5 +1,5 @@
 # API Creation Guide
-
+Swagger URL: visit the link https://editor-next.swagger.io/ just copy and paste the openapi.yaml for interactive view 
 This guide outlines the steps to create and use the API for order creation on the ShypBuddy platform.
 
 ## Workflow Graph
