@@ -87,7 +87,15 @@ Below is an example request body:
       "sku": "ACC-MS-002",
       "hsnCode": "847160"
     }
-  ]
+  ],
+"pickUpAddress" : {
+  "address": " 2285 N Hobart Blvd, Los Angeles", // Required field, placeholder value
+  "landmark": "Hollywood Hills", // Optional field, set to null
+  "pincode":  400064, // Required field, placeholder value
+  "city": "LA", // Required field, placeholder value
+  "state": "Cali", // Required field, placeholder value
+  "country": "USA" // Required field, placeholder value
+}
 }
 ```
 
@@ -308,5 +316,64 @@ fetch('https://seller.shypbuddy.net/api/orderApi/cancelOrderApi', {
 
 - Ensure that the Bearer token is valid and has the necessary permissions to cancel orders.
 - The `awbs` array can contain multiple AWBs for batch cancellation.
+
+# Rate Calculator API
+
+## Overview
+This API calculates shipping rates based on delivery parameters.
+
+## Endpoint Details
+
+### Calculate Shipping Rate
+- **Method**: POST
+- **URL**: `https://api.shypbuddy.net/api/direct-api/rate-calculator`
+- **Authentication**: Bearer Token
+
+#### Headers
+| Key           | Value            | Required |
+|---------------|------------------|----------|
+| Authorization | Bearer <USER_TOKEN> | Yes      |
+
+#### Request Body
+```json
+{
+    "deliveryData": {
+        "pickupPin": "400601",          // Pickup PIN code (string)
+        "deliveryPin": "400064",        // Delivery PIN code (string)
+        "actualWeight": "0.5",         // Actual weight in kg (string)
+        "length": "5",                // Length in cm (string)
+        "breadth": "6",               // Breadth in cm (string)
+        "height": "6",                // Height in cm (string)
+        "paymentType": "cod",         // Payment type (string: "cod" or "prepaid")
+        "volumetricWeight": 0.036,    // Volumetric weight in kg (number)
+        "applicableWeight": 0.5,      // Applicable weight in kg (number)
+        "shipmentValue": "10",        // Shipment value in currency (string)
+        "isDangerousGoods": false,    // Dangerous goods flag (boolean)
+        "isReverse": false            // Reverse shipping flag (boolean)
+    }
+}
+```
+#Example Request
+```
+curl -X POST "https://api.shypbuddy.net/api/direct-api/rate-calculator" \
+-H "Authorization: Bearer <USER_TOKEN>" \
+-H "Content-Type: application/json" \
+-d '{
+    "deliveryData": {
+        "pickupPin": "400601",
+        "deliveryPin": "400064",
+        "actualWeight": "0.5",
+        "length": "5",
+        "breadth": "6",
+        "height": "6",
+        "paymentType": "cod",
+        "volumetricWeight": 0.036,
+        "applicableWeight": 0.5,
+        "shipmentValue": "10",
+        "isDangerousGoods": false,
+        "isReverse": false
+    }
+}
+```
 
 ```` ▋
