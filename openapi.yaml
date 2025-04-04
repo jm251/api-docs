@@ -3,14 +3,16 @@ info:
   title: ShypBuddy API
   description: |
     API for integrating with the ShypBuddy platform for order management, 
-    label generation, and shipping operations.
+    label generation, shipping operations, and rate calculation.
   version: 1.0.0
   contact:
     email: support@shypbuddy.net
 
 servers:
   - url: https://seller.shypbuddy.net/api
-    description: Production server
+    description: Production server (Orders, Documents)
+  - url: https://api.shypbuddy.net/api/direct-api
+    description: Direct API server (Rate Calculator)
 
 security:
   - bearerAuth: []
@@ -54,6 +56,13 @@ paths:
                 createdAt: "2024-03-21T10:30:00Z"
                 city: "Mumbai"
                 state: "Maharashtra"
+              pickUpAddress:
+                address: "2285 N Hobart Blvd, Los Angeles"
+                landmark: "Hollywood Hills"
+                pincode: 400064
+                city: "LA"
+                state: "Cali"
+                country: "USA"
               packageList:
                 - name: "Gaming Laptop"
                   qty: 1
@@ -109,9 +118,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CancelOrderResponse'
-              example:
-                status: "success"
-                message: "Orders canceled successfully."
         '400':
           description: Invalid input
           content:
@@ -197,6 +203,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /rate-calculator:
+    post:
+      tags:
+        - Rates
+      summary: Calculate Shipping Rate
+      description: Calculates shipping rate based on delivery parameters
+      operationId: calculateShippingRate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateRequest'
+            example:
+              deliveryData:
+                pickupPin: "400601"
+                deliveryPin: "400064"
+                actualWeight: "0.5"
+                length: "5"
+                breadth: "6"
+                height: "6"
+                paymentType: "cod"
+                volumetricWeight: 0.036
+                applicableWeight: 0.5
+                shipmentValue: "10"
+                isDangerousGoods: false
+                isReverse: false
+      responses:
+        '200':
+          description: Successful rate calculation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -222,41 +275,30 @@ components:
       properties:
         deliveryType:
           type: string
-          description: Type of delivery service
           enum: [FORWARD, REVERSE]
         isDangerousGoods:
           type: string
-          description: Whether the shipment contains dangerous goods
           enum: [y, n]
         paymentMode:
           type: string
-          description: Payment mode for the order
           enum: [cod, prepaid]
         length:
           type: number
-          description: Length of the package in cm
         breadth:
           type: number
-          description: Breadth of the package in cm
         height:
           type: number
-          description: Height of the package in cm
         warehouseName:
           type: string
-          description: Name of the warehouse
         packageCount:
           type: integer
-          description: Number of packages in the order
         shippingMode:
           type: string
-          description: Mode of shipping
           enum: [surface, air]
         deadWeight:
           type: number
-          description: Weight of the package in kg
         deliveryPartner:
           type: string
-          description: Preferred delivery partner (optional)
 
     CustomerAddress:
       type: object
@@ -270,42 +312,52 @@ components:
       properties:
         fullName:
           type: string
-          description: Full name of the customer
         contactNumber:
           type: string
-          description: Contact number of the customer
         email:
           type: string
           format: email
-          description: Email address of the customer
         alternateNumber:
           type: string
-          description: Alternate contact number
         buyerCompanyName:
           type: string
-          description: Company name of the buyer
         buyerGstin:
           type: string
-          description: GSTIN of the buyer
         address:
           type: string
-          description: Delivery address
         landmark:
           type: string
-          description: Landmark near the delivery address
         pincode:
           type: integer
-          description: PIN code of the delivery location
         createdAt:
           type: string
           format: date-time
-          description: Time when the address was created
         city:
           type: string
-          description: City name
         state:
           type: string
-          description: State name
+
+    PickUpAddress:
+      type: object
+      required:
+        - address
+        - pincode
+        - city
+        - state
+        - country
+      properties:
+        address:
+          type: string
+        landmark:
+          type: string
+        pincode:
+          type: integer
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
 
     PackageItem:
       type: object
@@ -316,34 +368,31 @@ components:
       properties:
         name:
           type: string
-          description: Name of the product
         qty:
           type: integer
-          description: Quantity of the product
         price:
           type: number
-          description: Price of the product
         category:
           type: string
-          description: Category of the product
         sku:
           type: string
-          description: SKU of the product
         hsnCode:
           type: string
-          description: HSN code of the product
 
     OrderRequest:
       type: object
       required:
         - orderData
         - customerAddressList
+        - pickUpAddress
         - packageList
       properties:
         orderData:
           $ref: '#/components/schemas/OrderData'
         customerAddressList:
           $ref: '#/components/schemas/CustomerAddress'
+        pickUpAddress:
+          $ref: '#/components/schemas/PickUpAddress'
         packageList:
           type: array
           items:
@@ -354,23 +403,18 @@ components:
       properties:
         success:
           type: boolean
-          description: Whether the order creation was successful
         message:
           type: string
-          description: Message about the order creation result
         orderDetails:
           type: object
           properties:
             orderId:
               type: string
-              description: ID of the created order
             awb:
               type: string
-              description: Air Waybill number for the created order
             trackingUrl:
               type: string
               format: uri
-              description: URL to track the shipment
 
     CancelOrderRequest:
       type: object
@@ -379,7 +423,6 @@ components:
       properties:
         awbs:
           type: array
-          description: List of AWB numbers to cancel
           items:
             type: string
 
@@ -388,10 +431,8 @@ components:
       properties:
         status:
           type: string
-          description: Status of the cancellation request
         message:
           type: string
-          description: Message about the cancellation result
 
     GeneratePdfRequest:
       type: object
@@ -400,19 +441,85 @@ components:
       properties:
         awbs:
           type: array
-          description: List of AWB numbers for PDF generation
           items:
             type: string
+
+    RateRequest:
+      type: object
+      required:
+        - deliveryData
+      properties:
+        deliveryData:
+          type: object
+          required:
+            - pickupPin
+            - deliveryPin
+            - actualWeight
+            - length
+            - breadth
+            - height
+            - paymentType
+          properties:
+            pickupPin:
+              type: string
+              description: Pickup PIN code
+            deliveryPin:
+              type: string
+              description: Delivery PIN code
+            actualWeight:
+              type: string
+              description: Actual weight in kg
+            length:
+              type: string
+              description: Length in cm
+            breadth:
+              type: string
+              description: Breadth in cm
+            height:
+              type: string
+              description: Height in cm
+            paymentType:
+              type: string
+              enum: [cod, prepaid]
+              description: Payment type
+            volumetricWeight:
+              type: number
+              description: Volumetric weight in kg
+            applicableWeight:
+              type: number
+              description: Applicable weight in kg
+            shipmentValue:
+              type: string
+              description: Shipment value in currency
+            isDangerousGoods:
+              type: boolean
+              description: Dangerous goods flag
+            isReverse:
+              type: boolean
+              description: Reverse shipping flag
+
+    RateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the rate calculation was successful
+        rate:
+          type: number
+          description: Calculated shipping rate
+        currency:
+          type: string
+          description: Currency of the rate
+        message:
+          type: string
+          description: Additional information about the calculation
 
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
-          description: Error message
         status:
           type: string
-          description: Status of the request
         code:
           type: integer
-          description: Error code
