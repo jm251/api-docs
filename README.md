@@ -124,7 +124,7 @@ This repository provides an example of how to integrate with the ShypBuddy API f
 
 ### Generate PDF
 ```
-POST https://seller.shypbuddy.net/api/generatePdf2/generatePdf
+GET https://seller.shypbuddy.net/api/generatePdf2/generatePdf
 ```
 
 ## Headers
@@ -178,7 +178,7 @@ This repository provides an example of how to integrate with the ShypBuddy API f
 
 ### Generate PDF Thermal Label
 ```
-POST https://seller.shypbuddy.net/api/generatePdf2/generatePdfThermalLabel
+GET https://seller.shypbuddy.net/api/generatePdf2/generatePdfThermalLabel
 ```
 
 ## Headers
@@ -375,5 +375,87 @@ curl -X POST "https://api.shypbuddy.net/api/direct-api/rate-calculator" \
     }
 }
 ```
+# ShypBuddy Shipment Tracking API
+
+This API allows you to track shipments using Air Waybill (AWB) numbers. The endpoint provides real-time tracking status for one or more shipments.
+
+## Endpoint
+
+### GET /api/direct-api/shipment-tracking
+
+Retrieve the tracking status for one or more shipments by providing their AWB numbers.
+
+#### Request
+
+**Method**: GET  
+**URL**: `https://api.shypbuddy.net/api/direct-api/shipment-tracking`
+
+##### Headers
+
+| Key           | Value                     | Description                          |
+|---------------|---------------------------|--------------------------------------|
+| Authorization | Bearer `<token>`          | Required. Your API access token.     |
+
+##### Query Parameters
+
+| Parameter    | Type   | Description                                      | Required |
+|--------------|--------|--------------------------------------------------|----------|
+| `awbNumbers` | String | Comma-separated AWB numbers (no spaces). Example: `143449428418,1430523027` | Yes      |
+
+#### Example Request
+
+```bash
+curl -X GET "https://api.shypbuddy.net/api/direct-api/shipment-tracking?awbNumbers=143449428418,1430523027" \
+-H "Authorization: Bearer <your-token-here>"
+```
+Response
+Status Code: 200 OK (on success)
+
+Response Body
+The response contains an array of tracking details for each AWB number.
+
+Field	Type	Description
+success	Boolean	Indicates if the request was successful.
+data	Array	List of tracking details for each AWB number.
+message	String	A message describing the result of the request.
+Each object in the data array contains:
+
+Field	Type	Description
+awbNumber	String	The AWB number of the shipment.
+status	String	The current status of the shipment (e.g., DELIVERED).
+
+{
+    "success": true,
+    "data": [
+        {
+            "awbNumber": "143449428418",
+            "status": "DELIVERED"
+        },
+        {
+            "awbNumber": "1430523027",
+            "status": "DELIVERED"
+        }
+    ],
+    "message": "Tracking fetched successfully"
+}
+Error Responses
+Status Code	Description	Sample Response
+400	Invalid or missing parameters	{"success": false, "message": "awbNumbers is required"}
+401	Invalid or missing token	{"success": false, "message": "Unauthorized"}
+500	Server error	{"success": false, "message": "Internal server error"}
+Notes
+Ensure there are no spaces between AWB numbers in the awbNumbers parameter.
+The API token must be included in the Authorization header for all requests.
+Contact support at support@shypbuddy.net for assistance with obtaining an API token.
+Authentication
+To use this API, you need a valid Bearer token. Tokens can be obtained by registering on the ShypBuddy platform or contacting the support team.
+
+Rate Limits
+This API may be subject to rate limits. Please refer to your account documentation or contact support for details.
+
+Support
+For any issues or questions, reach out to our support team:
+
+Email: support@shypbuddy.net
 
 ```` ▋
