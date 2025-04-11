@@ -260,7 +260,8 @@ paths:
       parameters:
         - name: awbNumbers
           in: query
-          description: Comma-separated AWB numbers (no spaces). Example: 143449428418,1430523027
+          description: Comma-separated AWB numbers (no spaces).
+           
           required: true
           schema:
             type: string
