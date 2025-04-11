@@ -132,7 +132,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /generatePdf2/generatePdf:
-    post:
+    get:
       tags:
         - Documents
       summary: Generate PDF labels
@@ -168,7 +168,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
   /generatePdf2/generatePdfThermalLabel:
-    post:
+    get:
       tags:
         - Documents
       summary: Generate thermal label PDF
