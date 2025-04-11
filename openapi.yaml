@@ -3,7 +3,7 @@ info:
   title: ShypBuddy API
   description: |
     API for integrating with the ShypBuddy platform for order management, 
-    label generation, shipping operations, and rate calculation.
+    label generation, shipping operations, rate calculation, and shipment tracking.
   version: 1.0.0
   contact:
     email: support@shypbuddy.net
@@ -12,7 +12,7 @@ servers:
   - url: https://seller.shypbuddy.net/api
     description: Production server (Orders, Documents)
   - url: https://api.shypbuddy.net/api/direct-api
-    description: Direct API server (Rate Calculator)
+    description: Direct API server (Rate Calculator, Shipment Tracking)
 
 security:
   - bearerAuth: []
@@ -239,6 +239,48 @@ paths:
                 $ref: '#/components/schemas/RateResponse'
         '400':
           description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /shipment-tracking:
+    get:
+      tags:
+        - Tracking
+      summary: Track shipments
+      description: Retrieve tracking status for one or more shipments using AWB numbers
+      operationId: trackShipments
+      parameters:
+        - name: awbNumbers
+          in: query
+          description: Comma-separated AWB numbers (no spaces). Example: 143449428418,1430523027
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tracking information fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingResponse'
+              example:
+                success: true
+                data:
+                  - awbNumber: "143449428418"
+                    status: "DELIVERED"
+                  - awbNumber: "1430523027"
+                    status: "DELIVERED"
+                message: "Tracking fetched successfully"
+        '400':
+          description: Invalid or missing parameters
           content:
             application/json:
               schema:
@@ -523,3 +565,24 @@ components:
           type: string
         code:
           type: integer
+
+    TrackingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the tracking request was successful
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              awbNumber:
+                type: string
+                description: The AWB number of the shipment
+              status:
+                type: string
+                description: Current status of the shipment
+        message:
+          type: string
+          description: Additional information about the request
